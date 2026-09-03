@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  background: #020817;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.25), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.15), transparent 25%),
+    #020817;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 999px;
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+}
+
+.card {
+  @apply rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-sm shadow-soft;
+}
+
+.metric-card {
+  @apply card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-indigo-500/40;
+}
+
+.chip {
+  @apply inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.progress-ring {
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(#4f46e5 calc(var(--value) * 1%), #1e293b 0);
+}
+
+.progress-ring::before {
+  content: '';
+  width: 90px;
+  height: 90px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 1);
+  position: absolute;
+}
+
+.progress-ring span {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .progress-ring {
+    width: 110px;
+    height: 110px;
+  }
+
+  .progress-ring::before {
+    width: 76px;
+    height: 76px;
+  }
+}
