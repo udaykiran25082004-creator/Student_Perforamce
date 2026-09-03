@@ -11,6 +11,31 @@ const roleColors = {
   STUDENT: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40',
 };
 
+const demoMode = import.meta.env.PROD && !import.meta.env.VITE_API_URL;
+
+const demoUsers = {
+  'admin@college.edu': { id: 'demo-admin', name: 'Demo Admin', role: 'ADMIN', password: 'admin123' },
+  'teacher@college.edu': { id: 'demo-faculty', name: 'Demo Faculty', role: 'FACULTY', password: 'teacher123' },
+  'student@college.edu': { id: 'demo-student', name: 'Meher Khan', role: 'STUDENT', password: 'student123' },
+};
+
+const demoDashboards = {
+  ADMIN: { totalStudents: 245, promotionRate: 84, averageCGPA: 7.6, studentsAtRisk: 19 },
+  FACULTY: { totalStudents: 64, averageClassPerformance: 72, passPercentage: 78, creditsCompleted: 94 },
+  STUDENT: {
+    requiredCredits: 20,
+    earnedCredits: 18,
+    cgpa: 7.8,
+    attendance: 82,
+    promotionStatus: 'NOT ELIGIBLE',
+    riskLevel: 'MEDIUM',
+    trend: [62, 68, 74, 72, 80, 77],
+    preExam: 66,
+    mainExam: 71,
+    postExam: 76,
+  },
+};
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +48,12 @@ function App() {
       return;
     }
 
+    if (demoMode && token === 'demo-token') {
+      setUser(JSON.parse(localStorage.getItem('demo-user')));
+      setLoading(false);
+      return;
+    }
+
     API.get('/auth/me')
       .then(({ data }) => setUser(data))
       .catch(() => localStorage.removeItem('token'))
@@ -31,6 +62,11 @@ function App() {
 
   useEffect(() => {
     if (!user) return;
+
+    if (demoMode) {
+      setDashboard(demoDashboards[user.role]);
+      return;
+    }
 
     const endpoint =
       user.role === 'ADMIN' ? '/dashboard/admin' :
@@ -72,6 +108,19 @@ function App() {
   }, [dashboard, user]);
 
   const handleLogin = async (email, password) => {
+    if (demoMode) {
+      const demoUser = demoUsers[email];
+      if (!demoUser || demoUser.password !== password) {
+        throw new Error('Invalid demo credentials');
+      }
+
+      const { password: _password, ...safeUser } = demoUser;
+      localStorage.setItem('token', 'demo-token');
+      localStorage.setItem('demo-user', JSON.stringify(safeUser));
+      setUser(safeUser);
+      return;
+    }
+
     const { data } = await API.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
     setUser(data.user);
@@ -79,6 +128,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('demo-user');
     setUser(null);
     setDashboard(null);
   };
